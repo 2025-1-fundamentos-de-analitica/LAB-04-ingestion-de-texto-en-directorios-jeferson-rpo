@@ -5,9 +5,61 @@
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
+import os
+import zipfile
+import pandas as pd
+
+import os
+import zipfile
+import pandas as pd
 
 def pregunta_01():
-    """
+    # Ruta del archivo ZIP
+    zip_path = os.path.join("files", "input.zip")
+    destino = os.path.join("files")
+
+    os.makedirs(destino, exist_ok=True)
+
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(destino)
+
+    print(f"Extracción completada en: {os.path.abspath(destino)}")
+
+    base_input_path = os.path.join("files", "input")
+    carpetas = ["train", "test"]
+    sentimientos = ["negative", "positive", "neutral"]
+
+    output_path = os.path.join("files", "output")
+    os.makedirs(output_path, exist_ok=True)
+
+    for carpeta in carpetas:
+        frases = []
+        labels = []
+
+        ruta_carpeta = os.path.join(base_input_path, carpeta)
+
+        for sentimiento in sentimientos:
+            ruta_sentimiento = os.path.join(ruta_carpeta, sentimiento)
+            if not os.path.isdir(ruta_sentimiento):
+                continue
+
+            for archivo in os.listdir(ruta_sentimiento):
+                if archivo.endswith(".txt"):
+                    archivo_path = os.path.join(ruta_sentimiento, archivo)
+                    with open(archivo_path, "r", encoding="utf-8") as f:
+                        texto = f.read().strip()
+                        frases.append(texto)
+                        labels.append(sentimiento)
+
+        df = pd.DataFrame({"phrase": frases, "target": labels})  # Aquí renombramos 'sentiment' a 'target'
+
+        archivo_salida = os.path.join(output_path, f"{carpeta}_dataset.csv")
+        df.to_csv(archivo_salida, index=False)
+
+    print("Archivos CSV creados en la carpeta 'files/output/'")
+
+pregunta_01()
+"""
     La información requerida para este laboratio esta almacenada en el
     archivo "files/input.zip" ubicado en la carpeta raíz.
     Descomprima este archivo.
@@ -70,4 +122,4 @@ def pregunta_01():
     ```
 
 
-    """
+"""
